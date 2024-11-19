@@ -22,7 +22,7 @@ namespace JoltMonogameTest
 
         private Quaternion _rotation;
         private Vector3 _forward;
-        private Vector3 _position = new Vector3(-8, 4, -30);
+        private Vector3 _position = new Vector3(-8, 4, -45);
         
  
         public Camera()

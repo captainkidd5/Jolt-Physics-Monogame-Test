@@ -148,9 +148,7 @@ namespace JoltMonogameTest
         protected abstract void SetupBodies();
         public virtual void Update()
         {
-            //JobProcessor.Clear();
             const float deltaTime = 1.0f / 60.0f;
-
 
             PhysicsUpdateError error = PhysicsSystem.Update(deltaTime, 1, JobSystem);
             Debug.Assert(error == PhysicsUpdateError.None);
