@@ -33,6 +33,8 @@ namespace JoltMonogameTest
 
 
         private Ray[] _rays;
+
+        private Body _notCreatedBody;
         protected override void SetupBodies()
         {
 
@@ -42,6 +44,14 @@ namespace JoltMonogameTest
             Vector3 position = Vector3.Zero;
 
 
+            #region COMMENT_ME_OUT_TO_RUN
+            if (_notCreatedBody.ID.IsValid && PhysicsSystem.BodyInterface.IsAdded(_notCreatedBody.ID))
+            {
+                //attemped to read or write protected memory exception
+                Console.WriteLine("Never occurs");
+                //errors. How can I test to see if this body exists within the simulation? Mousing over ID while paused in the debugger crashes the program immediately
+            }
+            #endregion
 
             for (int x = -_gridSize / 2; x < _gridSize / 2; x++)
             {
@@ -64,7 +74,7 @@ namespace JoltMonogameTest
             }
 
             _rays = new Ray[_numRays];
-            for(int i = 0; i < _numRays; i++)
+            for (int i = 0; i < _numRays; i++)
             {
                 Vector3 rayPos = _rayStartingPosition + new Vector3(i * _rayOffSet, _rayStartingPosition.Y, _rayStartingPosition.Z);
 
@@ -146,9 +156,9 @@ namespace JoltMonogameTest
                     }
                 }
             }
-                
 
-    
+
+
 
         }
 
@@ -156,7 +166,7 @@ namespace JoltMonogameTest
         {
             base.Draw();
 
-            for(int i = 0; i < _rays.Length; i++)
+            for (int i = 0; i < _rays.Length; i++)
             {
                 Game1.RayDrawer.DrawRay(_rays[i].Position, _rays[i].Position + _rays[i].Direction, Microsoft.Xna.Framework.Color.Red);
 
