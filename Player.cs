@@ -88,7 +88,7 @@ namespace JoltMonogameTest
             #endregion
 
 
-
+            Game1.JoltSim.PhysicsSystem.OnContactAdded += OnContactAdded;
             Game1.JoltSim.PhysicsSystem.OnContactPersisted += NPCHoverContactEvent;
         }
 
