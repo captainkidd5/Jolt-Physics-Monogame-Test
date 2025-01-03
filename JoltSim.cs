@@ -146,7 +146,7 @@ namespace JoltMonogameTest
         }
 
         protected abstract void SetupBodies();
-        public virtual void Update()
+        public virtual void Update(GameTime gameTime)
         {
             const float deltaTime = 1.0f / 60.0f;
 

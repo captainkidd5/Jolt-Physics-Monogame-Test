@@ -43,6 +43,7 @@ namespace JoltMonogameTest
 
             RayDrawer = new RayDrawer();
             RayDrawer.Initialize(GraphicsDevice);
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -54,7 +55,10 @@ namespace JoltMonogameTest
             _newKeyBoardState = Keyboard.GetState();
 
             Camera.Update(gameTime);
-            JoltSim.Update();
+
+
+
+            JoltSim.Update(gameTime);
             base.Update(gameTime);
 
         }

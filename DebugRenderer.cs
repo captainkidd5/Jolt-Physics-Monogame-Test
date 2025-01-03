@@ -1,4 +1,6 @@
 ﻿using JoltPhysicsSharp;
+using Microsoft.VisualBasic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -61,7 +63,10 @@ namespace JoltMonogameTest
 
         protected override void DrawLine(System.Numerics.Vector3 from, System.Numerics.Vector3 to, JoltColor color)
         {
-            
+            //var vertices = new[] {
+            //    new VertexPositionColor(from.ToXnaVector(), Color.Red),
+            //    new VertexPositionColor(to.ToXnaVector(), Color.Blue) };
+            //_graphics.DrawUserPrimitives(PrimitiveType.LineStrip, vertices, 0, 1);
         }
 
 
@@ -83,15 +88,23 @@ namespace JoltMonogameTest
         protected override void DrawTriangle(System.Numerics.Vector3 v1, System.Numerics.Vector3 v2, System.Numerics.Vector3 v3, JoltColor color, CastShadow castShadow = CastShadow.Off)
         {
 
-            //Would be helpful to be able to differentiate colors between collision layers. Right now unable to see distinction between objects without flickering...
-            Microsoft.Xna.Framework.Color col = Microsoft.Xna.Framework.Color.Green * Game1.Random.RandFloat(.6f, 1f);
 
+
+
+            Color col = new Color(color.R, color.G, color.B, (byte)255);
+
+            //tiny offset to prevent flickering with normal models
+            v1 *= 1.0001f;
+            v2 *= 1.0001f;
+            v3 *= 1.0001f;
             if (_vertexCount > _requiredVerts)
                 return;
             _verticies[_vertexCount] = new VertexPositionColor(v1.ToXnaVector(), col);
+            col.G /= 2;
             _vertexCount++;
             _verticies[_vertexCount] = new VertexPositionColor(v2.ToXnaVector(), col);
             _vertexCount++;
+            col.G /= 2;
 
             _verticies[_vertexCount] = new VertexPositionColor(v3.ToXnaVector(), col);
             _vertexCount++;
@@ -106,10 +119,7 @@ namespace JoltMonogameTest
         {
             throw new NotImplementedException();
         }
-
-   
     }
-
     public class DrawFilter : BodyDrawFilter
     {
         protected override bool ShouldDraw(Body body)

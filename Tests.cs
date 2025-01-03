@@ -13,9 +13,7 @@ namespace JoltMonogameTest
     public class Tests : JoltSim
     {
 
-        public static RayCastFilter RayCastFilter = new RayCastFilter();
-        public static RayCastObjectFilter RayCastObjectFilter = new RayCastObjectFilter();
-        public static RayBodyFilter RayBodyFilter = new RayBodyFilter();
+
         private static Vector3 Down = new Vector3(0, -1, 0);
 
         private readonly int _gridSize = 40;
@@ -23,18 +21,10 @@ namespace JoltMonogameTest
 
         private readonly int _numSpheres = 80;
 
-        private Vector3 _rayStartingPosition = new Vector3(0, 8, 0);
-        private Vector3 _rayDirection = new Vector3(.15f, -1, 0) * 20f;
-        private readonly float _raySpeed = .15f;
-
-        private readonly int _numRays = 24;
-
-        private readonly float _rayOffSet = .125f;
 
 
-        private Ray[] _rays;
+        private Player _player;
 
-        private Body _notCreatedBody;
         protected override void SetupBodies()
         {
 
@@ -44,14 +34,7 @@ namespace JoltMonogameTest
             Vector3 position = Vector3.Zero;
 
 
-            #region COMMENT_ME_OUT_TO_RUN
-            if (_notCreatedBody.ID.IsValid && PhysicsSystem.BodyInterface.IsAdded(_notCreatedBody.ID))
-            {
-                //attemped to read or write protected memory exception
-                Console.WriteLine("Never occurs");
-                //errors. How can I test to see if this body exists within the simulation? Mousing over ID while paused in the debugger crashes the program immediately
-            }
-            #endregion
+
 
             for (int x = -_gridSize / 2; x < _gridSize / 2; x++)
             {
@@ -73,89 +56,25 @@ namespace JoltMonogameTest
                 PhysicsSystem.BodyInterface.CreateAndAddBody(sphereBodyCreationSettings, Activation.Activate);
             }
 
-            _rays = new Ray[_numRays];
-            for (int i = 0; i < _numRays; i++)
-            {
-                Vector3 rayPos = _rayStartingPosition + new Vector3(i * _rayOffSet, _rayStartingPosition.Y, _rayStartingPosition.Z);
 
-                //raycast testing
-                JoltPhysicsSharp.Ray ray = new JoltPhysicsSharp.Ray(rayPos, _rayDirection);
 
-                _rays[i] = ray;
-            }
+            _player = new Player();
+
+            _player.Initialize(_playerStartingPosition);
+
         }
-
-        public override void Update()
+        private Microsoft.Xna.Framework.Vector3 _playerStartingPosition = new Microsoft.Xna.Framework.Vector3(0, 10, 0);
+        public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
         {
-            base.Update();
 
-
-            if (Game1.IsKeyPressed(Keys.Up))
-                _rayStartingPosition.Z += _raySpeed;
-
-            if (Game1.IsKeyPressed(Keys.Down))
-                _rayStartingPosition.Z -= _raySpeed;
-
-            if (Game1.IsKeyPressed(Keys.Left))
-                _rayStartingPosition.X += _raySpeed;
-
-            if (Game1.IsKeyPressed(Keys.Right))
-                _rayStartingPosition.X -= _raySpeed;
-            for (int i = 0; i < _rays.Length; i++)
-            {
-
-                _rays[i].Position = _rayStartingPosition + new Vector3(i * _rayOffSet, _rayStartingPosition.Y, _rayStartingPosition.Z);
-                //raycast testing
-                JoltPhysicsSharp.Ray ray = new JoltPhysicsSharp.Ray(_rays[i].Position, _rayDirection);
-
-                if (Game1.JoltSim.PhysicsSystem.NarrowPhaseQuery.CastRay(
-                ray,
-                  out RayCastResult hitResult,
-            RayCastFilter,
-              RayCastObjectFilter,
-              RayBodyFilter))
-                {
-                    Vector3 hit = _rays[i].Position + hitResult.Fraction * _rayDirection;
-
-                    PhysicsSystem.BodyLockInterface.LockRead(hitResult.BodyID, out BodyLockRead bodyLock);
-                    Vector3 outPos = Vector3.Zero;
-                    if (bodyLock.Succeeded)
-                    {
-                        Body hit_body = bodyLock.Body;
-
-                        //random crashes here, occasionally
-                        //System.ExecutionEngineException: 'Exception of type 'System.ExecutionEngineException' was thrown. Might only be after breakpoints pause and then resume?
-                        PhysicsMaterial? material2 = hit_body.Shape.GetMaterial(hitResult.subShapeID2);
-
-                        Vector3 normal = hit_body.GetWorldSpaceSurfaceNormal(hitResult.subShapeID2, outPos);
-
-                        Vector3 hitEnd = _rays[i].Position + hitResult.Fraction * _rayDirection;
-
-
-
-                        PhysicsSystem.BodyInterface.GetPosition(hitResult.BodyID);
-
-                    }
-                    PhysicsSystem.BodyLockInterface.UnlockRead(in bodyLock);
-
-                    Shape shape = PhysicsSystem.BodyInterface.GetShape(hitResult.BodyID);
-
-                    shape.GetLocalBounds(out JoltPhysicsSharp.BoundingBox rayHitBox);
-
-                    System.Numerics.Vector3 hitBodyPosition = PhysicsSystem.BodyInterface.GetPosition(hitResult.BodyID);
-
-                    if (Game1.JoltSim.PhysicsSystem.NarrowPhaseQuery.CastRay(
-                    ray,
-                      out RayCastResult res,
-                RayCastFilter,
-                  RayCastObjectFilter,
-                  RayBodyFilter))
-                    {
-                        Console.WriteLine("test");
-
-                    }
-                }
-            }
+            //This makes no sense to do in an actual game, but here we are repeatedly destroying and recreating the player
+            _player.Destroy();
+            _player.Initialize(_playerStartingPosition);
+            base.Update(gameTime);
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _player.ExtendedUpdate(dt, Microsoft.Xna.Framework.Vector3.Forward);
+            _player.HandleInput(dt, false);
+           
 
 
 
@@ -166,11 +85,6 @@ namespace JoltMonogameTest
         {
             base.Draw();
 
-            for (int i = 0; i < _rays.Length; i++)
-            {
-                Game1.RayDrawer.DrawRay(_rays[i].Position, _rays[i].Position + _rays[i].Direction, Microsoft.Xna.Framework.Color.Red);
-
-            }
 
         }
 
